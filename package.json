@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/mbbaltaji/tinyapp/issues"
   },
-  "homepage": "https://github.com/mbbaltaji/tinyapp#readme"
+  "homepage": "https://github.com/mbbaltaji/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
 }
