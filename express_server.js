@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');  // required to make post data request readable
+const { redirect } = require('express/lib/response');
 const app = express();
 const PORT = 8080;  // default port 8080
 
@@ -9,7 +10,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 
 // Mock database
-const urlDatabase = {
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
@@ -35,8 +36,14 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  console.log(req.body);
-  res.send('OK'); // Respond with 'Ok' (we will replace this)
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
+});
+
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 
@@ -54,7 +61,7 @@ const generateRandomString = () => {
   // return randomString;
   return Math.random().toString(36).substring(2,8);
 }
-console.log(generateRandomString());
+
 
 
 
