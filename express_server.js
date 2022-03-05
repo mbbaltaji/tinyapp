@@ -1,9 +1,11 @@
 const express = require('express');
-const bodyParser = require('body-parser');  // required to make post data readable
+const bodyParser = require('body-parser');  // required to make post data request readable
 const app = express();
 const PORT = 8080;  // default port 8080
 
 app.set('view engine', 'ejs');
+//will convert request body from a Buffer into a string so it can be read
+//It then adds the data tot he req object under the key body
 app.use(bodyParser.urlencoded({extended: true}));
 
 // Mock database
@@ -12,7 +14,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//Route Handlers
+//ROUTE HANDLERS
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
@@ -32,8 +34,27 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('OK'); // Respond with 'Ok' (we will replace this)
+});
+
 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+const generateRandomString = () => {
+  // const chars = 'ABCDEFGHIJKLMNOPQRSTYUVWXYZ0123456789abcdefghijklmnopqrstuvxyz';
+  // let randomString = '';
+  // for (let i = 0; i < 6; i++) {
+  //   randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+  // }
+  // return randomString;
+  return Math.random().toString(36).substring(2,8);
+}
+console.log(generateRandomString());
+
+
+
