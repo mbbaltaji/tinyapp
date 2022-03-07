@@ -24,20 +24,23 @@ app.get('/', (req, res) => {
 
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
-  console.log(req.cookies);
-  console.log(req.body.username);
   res.redirect('/urls');
 });
 
 //render index
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    username: req.cookies["username"],
+    urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
 //get route to show the form 
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render('urls_new', templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
