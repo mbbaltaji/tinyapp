@@ -1,14 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');  // required to make post data request readable
 const { redirect } = require('express/lib/response');
-const cookiePaser = require('cookie-parser');
 const app = express();
 const PORT = 8080;  // default port 8080
 
 app.set('view engine', 'ejs');
+
 //will convert request body from a Buffer into a string so it can be human readable
 //It then adds the data to the req object under the key body
 app.use(bodyParser.urlencoded({extended: true}));
+
 
 // Mock database
 let urlDatabase = {
@@ -20,8 +21,11 @@ let urlDatabase = {
 
 //Root
 app.get('/', (req, res) => {
+  res.cookie(username, req.body.username);
+  console.log(res.cookie);
   res.send('Hello!');
 });
+
 
 //Render index
 app.get('/urls', (req, res) => {
@@ -65,6 +69,7 @@ app.post('/urls/:shortURL', (req, res) => {
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect('/urls');
 });
+
 
 
 app.listen(PORT, () => {
