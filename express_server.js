@@ -6,12 +6,10 @@ const app = express();
 const PORT = 8080;  // default port 8080
 
 app.set('view engine', 'ejs');
-
-//will convert request body from a Buffer into a string so it can be human readable
-//It then adds the data to the req object under the key body
+//will convert request body from a Buffer into a string so it can be read
+//It then adds the data tot he req object under the key body
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
 
 // Mock database
 let urlDatabase = {
@@ -20,16 +18,21 @@ let urlDatabase = {
 };
 
 //ROUTE HANDLERS
-
-//Root
 app.get('/', (req, res) => {
-  res.cookie(username, req.body.username);
-  console.log(res.cookie);
   res.send('Hello!');
 });
 
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+});
 
-//Render index
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+//render index
 app.get('/urls', (req, res) => {
   const templateVars = { 
     username: req.cookies["username"],
@@ -37,7 +40,7 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-//Render form 
+//get route to show the form 
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     username: req.cookies["username"]
@@ -45,7 +48,6 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
-//Displays longURL and shortURL 
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
@@ -76,7 +78,6 @@ app.post('/urls/:shortURL', (req, res) => {
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect('/urls');
 });
-
 
 
 app.listen(PORT, () => {
