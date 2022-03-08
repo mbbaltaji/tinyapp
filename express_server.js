@@ -102,6 +102,19 @@ app.get('/register', (req, res) =>{
   res.render('registration');
 });
 
+app.post('/register', (req, res) => {
+  let id = generateRandomString().substring(2,5);
+  users[id] = {
+    id: id,
+    email: req.body.email,
+    password: req.body.password
+  }
+  res.cookie('user_id', id);
+  console.log('cookies: ', req.cookies);
+  console.log('users: ', users);
+  res.redirect('/urls');
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
