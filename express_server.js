@@ -15,11 +15,25 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
 app.use(cookieParser());
 
-// Mock database
+// Mock url database
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+// Mock user database 
+const users = {
+  '123':{
+    id: '123',
+    email: 'moose@example.com',
+    password: 'asd123'
+  },
+  '456':{
+    id: '456',
+    email: 'markie@example.com',
+    password: 'asd456'
+  }
+}
 
 //ROUTE HANDLERS
 app.get('/', (req, res) => {
