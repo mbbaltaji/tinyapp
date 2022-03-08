@@ -28,22 +28,8 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
-<<<<<<< HEAD
 
 //Render index
-=======
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
-});
-
-app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
-});
-
-//render index
->>>>>>> feature/cookies
 app.get('/urls', (req, res) => {
   const templateVars = { 
     username: req.cookies["username"],
