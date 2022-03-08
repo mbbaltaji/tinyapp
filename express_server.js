@@ -1,14 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');  // required to make post data request readable
 const { redirect } = require('express/lib/response');
-const cookieParser = require('cookie-parser');
+const morgan = require('morgan'); //console logs GET, POST details
+const cookieParser = require('cookie-parser');  
 const app = express();
 const PORT = 8080;  // default port 8080
 
 app.set('view engine', 'ejs');
+
 //will convert request body from a Buffer into a string so it can be read
 //It then adds the data tot he req object under the key body
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(morgan('dev'));
 app.use(cookieParser());
 
 // Mock database
@@ -20,16 +23,6 @@ let urlDatabase = {
 //ROUTE HANDLERS
 app.get('/', (req, res) => {
   res.send('Hello!');
-});
-
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
-});
-
-app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
 });
 
 //render index
@@ -49,7 +42,7 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
 });
 
@@ -80,17 +73,22 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
 const generateRandomString = () => {
-  // const chars = 'ABCDEFGHIJKLMNOPQRSTYUVWXYZ0123456789abcdefghijklmnopqrstuvxyz';
-  // let randomString = '';
-  // for (let i = 0; i < 6; i++) {
-  //   randomString += chars.charAt(Math.floor(Math.random() * chars.length));
-  // }
-  // return randomString;
   return Math.random().toString(36).substring(2,8);
 }
 
