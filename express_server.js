@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');  // required to make post data request readable
 const { redirect } = require('express/lib/response');
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080;  // default port 8080
 
@@ -9,6 +10,7 @@ app.set('view engine', 'ejs');
 //will convert request body from a Buffer into a string so it can be human readable
 //It then adds the data to the req object under the key body
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 
 // Mock database
@@ -26,16 +28,35 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
+<<<<<<< HEAD
 
 //Render index
+=======
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+//render index
+>>>>>>> feature/cookies
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    username: req.cookies["username"],
+    urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
 //Render form 
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render('urls_new', templateVars);
 });
 
 //Displays longURL and shortURL 
