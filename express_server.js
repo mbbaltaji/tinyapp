@@ -3,10 +3,11 @@ const bodyParser = require('body-parser');  // required to make post data reques
 const { redirect } = require('express/lib/response');
 const morgan = require('morgan'); //console logs GET, POST details
 const cookieParser = require('cookie-parser');  
+
 const app = express();
 const PORT = 8080;  // default port 8080
 
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs'); 
 
 //will convert request body from a Buffer into a string so it can be read
 //It then adds the data tot he req object under the key body
@@ -81,6 +82,10 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
+});
+
+app.get('/register', (req, res) =>{
+  res.render('registration');
 });
 
 
