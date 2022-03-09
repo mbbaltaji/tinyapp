@@ -42,22 +42,30 @@ app.get('/', (req, res) => {
 
 //render index
 app.get('/urls', (req, res) => {
-  const templateVars = { 
-    username: req.cookies["username"],
-    urls: urlDatabase };
+  let id = req.cookies["user_id"];
+  const templateVars = {
+    user: users[id],
+    urls: urlDatabase 
+  };
+  console.log(templateVars);
+  console.log(users);
   res.render('urls_index', templateVars);
 });
 
 //get route to show the form 
 app.get('/urls/new', (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    user: req.cookies["user_id"]
   }
   res.render('urls_new', templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { 
+    user: req.cookies["user_id"], 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL] 
+  };
   res.render('urls_show', templateVars);
 });
 
@@ -89,12 +97,12 @@ app.post('/urls/:shortURL', (req, res) => {
 
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
+  res.cookie('user_id', req.body.user_id);
   res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
@@ -103,15 +111,25 @@ app.get('/register', (req, res) =>{
 });
 
 app.post('/register', (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  console.log(req.body.email);
   let id = generateRandomString().substring(2,5);
+  if (isMissingCredentials(email, password)){
+    res.status(400).send('Missing email or password');
+  }
+
+  if(isValidEmail(email, users)){
+    res.status(400).send('Email already exists!');
+  }
   users[id] = {
     id: id,
     email: req.body.email,
     password: req.body.password
   }
   res.cookie('user_id', id);
-  console.log('cookies: ', req.cookies);
-  console.log('users: ', users);
+  // console.log('cookies: ', req.cookies);
+  // console.log('users: ', users);
   res.redirect('/urls');
 });
 
@@ -120,10 +138,24 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+
+// helper functions 
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2,8);
 }
 
+const isMissingCredentials = (email, password, users ) => {
+  if(!email || !password){
+    return true;
+  }
+}
 
-
+const isValidEmail = (email, database) => {
+  for (const user in database) {
+    if (email === database[user].email) {
+      return true;
+    }
+  }
+  return false;
+}
 
