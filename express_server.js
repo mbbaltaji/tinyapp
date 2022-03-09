@@ -48,7 +48,7 @@ app.get('/urls', (req, res) => {
 
 app.get('/urls/new', (req, res) => {
   let id = req.cookies["user_id"];
-  console.log(id);
+  
   const templateVars = {
     user: users[id]
   };
@@ -57,6 +57,7 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   let id = req.cookies["user_id"];
+
   const templateVars = {
     user: users[id],
     shortURL: req.params.shortURL,
