@@ -54,8 +54,9 @@ app.get('/urls', (req, res) => {
 
 //get route to show the form 
 app.get('/urls/new', (req, res) => {
+  const id = req.cookies["user_id"]
   const templateVars = {
-    user: req.cookies["user_id"]
+    user: users[id]
   }
   res.render('urls_new', templateVars);
 });
@@ -96,10 +97,10 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 
-app.post('/login', (req, res) => {
-  res.cookie('user_id', req.body.user_id);
-  res.redirect('/urls');
-});
+// app.post('/login', (req, res) => {
+//   res.cookie('user_id', req.body.user_id);
+//   res.redirect('/urls');
+// });
 
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
@@ -113,8 +114,8 @@ app.get('/register', (req, res) =>{
 app.post('/register', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
-  console.log(req.body.email);
   let id = generateRandomString().substring(2,5);
+
   if (isMissingCredentials(email, password)){
     res.status(400).send('Missing email or password');
   }
@@ -122,15 +123,20 @@ app.post('/register', (req, res) => {
   if(isValidEmail(email, users)){
     res.status(400).send('Email already exists!');
   }
+
+
   users[id] = {
     id: id,
     email: req.body.email,
     password: req.body.password
   }
+
   res.cookie('user_id', id);
-  // console.log('cookies: ', req.cookies);
-  // console.log('users: ', users);
   res.redirect('/urls');
+});
+
+app.get('/login', (req, res) => {
+  res.render('login');
 });
 
 
