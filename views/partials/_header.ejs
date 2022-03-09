@@ -10,14 +10,12 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-      <% if (user === undefined) { %>
-        <form class="form-inline my-1" method="POST" action="/login">
-          <button type="submit" class="btn btn-outline-dark" style="margin-right: 1em">Login</button>
-        </form>
-        <form class="form-inline my-1" method="POST" action="/register" >
-          <button type="submit" class="btn btn-outline-dark">Register</button>
-        </form>
-
+      <% if (!user) { %>
+        <div>
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" href="/register">Register</a>
+            <a class="nav-item nav-link" href="/login">Login</a>
+          </div>
       <% } else { %> 
         <form class="form-inline my-1" action="/logout" method="POST">
           <div>
