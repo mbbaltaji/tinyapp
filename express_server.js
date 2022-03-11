@@ -12,9 +12,15 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 
 // Mock url database
-let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+const urlDatabase = {
+  b2xVn2: {
+        longURL: "http://www.lighthouselabs.ca",
+        userID: "aJ48lW"
+    },
+  sm5xK: {
+        longURL: "http://www.google.com",
+        userID: "aJ48lW"
+    }
 };
 
 // Mock user database
@@ -47,12 +53,16 @@ app.get('/urls', (req, res) => {
 
 
 app.get('/urls/new', (req, res) => {
-  let id = req.cookies["user_id"];
+  let session = req.cookies["user_id"];
   
   const templateVars = {
-    user: users[id]
+    user: users[session]
   };
+  if (session){
   res.render('urls_new', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -61,20 +71,35 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     user: users[id],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL]["longURL"]
   };
   res.render('urls_show', templateVars);
 });
 
 app.post('/urls', (req, res) => {
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
+  let sessionID = req.cookies["user_id"];
+
+  if(sessionID) {
+    let shortURL = generateRandomString();
+    urlDatabase[shortURL] = { 
+      longURL: req.body.longURL,
+      userID: sessionID 
+    }
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    return res.status(401).send('Unauthorized. Please login first.');
+  }
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  let validUrlId = urlDatabase[req.params.shortURL]
+  if (validUrlId) {
+    const longURL = urlDatabase[req.params.shortURL]['longURL'];
+    res.redirect(longURL);
+  } else {
+    return res.status(404).send('Page NOT found. Wrong id in /u/:id');
+  }
+  
 });
 
 
@@ -85,7 +110,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL]['longURL'] = req.body.longURL;
   res.redirect('/urls');
 });
 
