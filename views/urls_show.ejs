@@ -8,6 +8,15 @@
 
 <body>
   <%- include('partials/_header') %> 
+  <% if(!user) { %>
+    <div class="alert alert-danger" role="alert">
+      please login or register to view URLs
+    </div>
+    <% } else if(user.id !== urlUserID) { %>
+      <div class="alert alert-danger" role="alert">
+        The requested URL does not belong to this user
+      </div>
+      <% } else {%> 
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
@@ -23,6 +32,7 @@
             <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </form>
+        <% } %> 
     </div>
   </div>
   <!-- Bootstrap JS -->

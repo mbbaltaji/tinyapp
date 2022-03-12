@@ -46,7 +46,7 @@ app.get('/urls', (req, res) => {
   let id = req.cookies["user_id"];
   const templateVars = {
     user: users[id],
-    urls: urlDatabase
+    urls: urlsForUser(id)
   };
   res.render('urls_index', templateVars);
 });
@@ -66,25 +66,29 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
+  if (urlDatabase[req.params.shortURL]) {
   let id = req.cookies["user_id"];
-
   const templateVars = {
     user: users[id],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]["longURL"]
+    longURL: urlDatabase[req.params.shortURL]["longURL"],
+    urlUserID: urlDatabase[req.params.shortURL].userID
   };
   res.render('urls_show', templateVars);
+} else {
+  res.status(404).send('The short URL entered does not exist');
+}
 });
 
 app.post('/urls', (req, res) => {
   let sessionID = req.cookies["user_id"];
-
   if(sessionID) {
     let shortURL = generateRandomString();
     urlDatabase[shortURL] = { 
       longURL: req.body.longURL,
       userID: sessionID 
     }
+    console.log(urlDatabase);
     res.redirect(`/urls/${shortURL}`);
   } else {
     return res.status(401).send('Unauthorized. Please login first.');
@@ -210,3 +214,15 @@ const findIdByEmail = (email) => {
     }
   }
 };
+
+const urlsForUser = (id) => {
+  let userURLS = {}
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLS[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLS;
+}
+
+//findUserByID
