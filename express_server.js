@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');  // required to make POST data request human readable
 const morgan = require('morgan'); //console logs GET, POST details
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+
+
 
 const app = express();
 const PORT = 8080;
@@ -28,12 +31,12 @@ const users = {
   '123':{
     id: '123',
     email: 'moose@example.com',
-    password: 'asd123'
+    password: bcrypt.hashSync("asd123", 10)
   },
   '456':{
     id: '456',
     email: 'markie@example.com',
-    password: 'asd456'
+    password: bcrypt.hashSync("asd456", 10)
   }
 };
 
@@ -111,8 +114,6 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   const id = req.cookies["user_id"];
   const userURLs = urlsForUser(id);
 
-  //console.log(userURLs);
-
   for (const url in userURLs) {
     if (url === req.params.shortURL) {
       delete urlDatabase[req.params.shortURL];
@@ -153,7 +154,7 @@ app.post('/register', (req, res) => {
   users[id] = {
     id: id,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(password, 10)
   };
 
   res.cookie('user_id', id);
@@ -167,15 +168,16 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
+  let id = findIdByEmail(email);
 
   if (!isValidEmail(email, users)) {
     return res.status(403).send('Invalid email.. User does not exist!');
   }
-  if (!isValidPassword(password, email)) {
+  if (!bcrypt.compareSync(password, users[id].password)) {
     return res.status(403).send('Wrong password!');
   }
 
-  let id = findIdByEmail(email);
+  
   res.cookie('user_id', id);
   res.redirect('/urls');
 });
@@ -201,15 +203,6 @@ const isMissingCredentials = (email, password) => {
 const isValidEmail = (email, database) => {
   for (const user in database) {
     if (email === database[user].email) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const isValidPassword = (password, email) => {
-  for (const user in users) {
-    if (users[user].email === email && users[user].password === password) {
       return true;
     }
   }
