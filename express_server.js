@@ -88,7 +88,7 @@ app.post('/urls', (req, res) => {
       longURL: req.body.longURL,
       userID: sessionID 
     }
-    console.log(urlDatabase);
+    //console.log(urlDatabase);
     res.redirect(`/urls/${shortURL}`);
   } else {
     return res.status(401).send('Unauthorized. Please login first.');
@@ -108,8 +108,18 @@ app.get('/u/:shortURL', (req, res) => {
 
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  const id = req.cookies["user_id"];
+  const userURLs = urlsForUser(id);
+
+  //console.log(userURLs);
+
+  for (const url in userURLs) {
+    if (url === req.params.shortURL) {
+      delete urlDatabase[req.params.shortURL];
+      return res.redirect('/urls');
+    } 
+  }
+    res.status(401).send('You are unauthorized to delete this url');
 });
 
 app.post('/urls/:shortURL', (req, res) => {
