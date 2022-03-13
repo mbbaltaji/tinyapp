@@ -1,15 +1,18 @@
 
-// helper functions
+// generates a random string
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2,8);
 };
 
+// checks if the email and password fields are empty 
 const isMissingCredentials = (email, password) => {
   if (!email || !password) {
     return true;
   }
+  return false;
 };
 
+// validates if email exists in the database
 const isValidEmail = (email, database) => {
   for (const user in database) {
     if (email === database[user].email) {
@@ -19,6 +22,7 @@ const isValidEmail = (email, database) => {
   return false;
 };
 
+//fetches a user's id by their email
 const getUserByEmail = (email, database) => {
   for (const user in database) {
     if (database[user].email === email) {
@@ -27,6 +31,7 @@ const getUserByEmail = (email, database) => {
   }
 };
 
+// fetches user's urls based on their id (cookie)
 const urlsForUser = (id, urlDatabase) => {
   let userURLS = {}
   for (const shortURL in urlDatabase) {
