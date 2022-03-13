@@ -138,7 +138,10 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/register', (req, res) =>{
-  res.render('registration');
+  let templateVars = {
+    user: users[req.session.user_id]
+  }
+  res.render('registration', templateVars);
 });
 
 app.post('/register', (req, res) => {
@@ -165,7 +168,11 @@ app.post('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  let templateVars = {
+    user: users[req.session.user_id]
+  }
+  res.render('login', templateVars);
+  
 });
 
 app.post('/login', (req, res) => {
