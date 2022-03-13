@@ -53,14 +53,14 @@ const users = {
 
 
 app.get('/', (req, res) => {
-  if (req.session.user_id) {
+  if(req.session.user_id){
     res.redirect('/urls');
   } else {
     res.redirect('/login');
   }
 });
 
-// displays url inventory of user
+// renders url inventory of user 
 app.get('/urls', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -69,7 +69,7 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-// Creating a new short URL from long URL (if logged in)
+// for creating a new short URL from long URL (if logged in)
 app.get('/urls/new', (req, res) => {
   let session = req.session.user_id;
   
@@ -83,7 +83,7 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
-//
+// renders existing short URL of specified :shortURL value
 app.get('/urls/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     let session = req.session.user_id;
@@ -95,10 +95,11 @@ app.get('/urls/:shortURL', (req, res) => {
     };
     res.render('urls_show', templateVars);
   } else {
-    res.status(404).send('The short URL entered does not exist');
+    return res.status(404).send('The short URL entered does not exist');
   }
 });
 
+// redirects to actual website of newly created short URL
 app.get('/u/:shortURL', (req, res) => {
   let validUrlId = urlDatabase[req.params.shortURL];
   if (validUrlId) {
@@ -110,23 +111,26 @@ app.get('/u/:shortURL', (req, res) => {
   
 });
 
+// renders register page 
 app.get('/register', (req, res) => {
   let templateVars = {
     user: users[req.session.user_id],
     error: {}
-  };
+  }
   res.render('registration', templateVars);
 });
 
+// renders login page
 app.get('/login', (req, res) => {
   let templateVars = {
     error: {},
     user: users[req.session.user_id]
-  };
+  }
   res.render('login', templateVars);
   
 });
 
+// makes post request to urls/shortURL when user submits a new url
 app.post('/urls', (req, res) => {
   let session = req.session.user_id;
   if (session) {
@@ -141,12 +145,14 @@ app.post('/urls', (req, res) => {
   }
 });
 
+// renders newly created short URL from long URL
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   urlDatabase[shortURL]['longURL'] = req.body.longURL;
   res.redirect('/urls');
 });
 
+// deletes a url for user if logged in
 app.post('/urls/:shortURL/delete', (req, res) => {
   const session = req.session.user_id;
   const userURLs = urlsForUser(session, urlDatabase);
@@ -160,6 +166,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.status(401).send('You are unauthorized to delete this url');
 });
 
+// registers new user 
 app.post('/register', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
@@ -170,7 +177,7 @@ app.post('/register', (req, res) => {
     templateVars = {
       user: users[req.session.user_id],
       error: { msg: 'Missing Email or Password' }
-    };
+    }
     res.status(400);
     return res.render('registration', templateVars);
   }
@@ -179,7 +186,7 @@ app.post('/register', (req, res) => {
     templateVars = {
       user: users[req.session.user_id],
       error: { msg: 'Email already exists!' }
-    };
+    }
     res.status(400);
     return res.render('registration', templateVars);
   }
@@ -194,6 +201,7 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
+// logs in existing user
 app.post('/login', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
@@ -205,15 +213,16 @@ app.post('/login', (req, res) => {
       user: users[req.session.user_id],
       error: {
         msg: 'Invalid email or password!',
-      }
-    };
-    res.status(400);
-    return res.render('login', templateVars);
+      } 
+  }
+  res.status(400);
+  return res.render('login', templateVars);
   }
   req.session.user_id = id;
   res.redirect('/urls');
 });
 
+// logs out existing user
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
