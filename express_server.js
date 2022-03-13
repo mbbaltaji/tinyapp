@@ -94,7 +94,6 @@ app.post('/urls', (req, res) => {
       longURL: req.body.longURL,
       userID: session
     };
-    //console.log(urlDatabase);
     res.redirect(`/urls/${shortURL}`);
   } else {
     return res.status(401).send('Unauthorized. Please login first.');
@@ -111,7 +110,6 @@ app.get('/u/:shortURL', (req, res) => {
   }
   
 });
-
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   const session = req.session.user_id;
@@ -137,9 +135,10 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-app.get('/register', (req, res) =>{
+app.get('/register', (req, res) => {
   let templateVars = {
-    user: users[req.session.user_id]
+    user: users[req.session.user_id],
+    error: {}
   }
   res.render('registration', templateVars);
 });
@@ -148,13 +147,24 @@ app.post('/register', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   let newUserId = generateRandomString().substring(2,5);
+  let templateVars = {};
 
   if (isMissingCredentials(email, password)) {
-    return res.status(400).send('Missing email or password');
+    templateVars = {
+      user: users[req.session.user_id],
+      error: { msg: 'Missing Email or Password' }
+    }
+    res.status(400);
+    return res.render('registration', templateVars);
   }
 
   if (isValidEmail(email, users)) {
-    return res.status(400).send('Email already exists!');
+    templateVars = {
+      user: users[req.session.user_id],
+      error: { msg: 'Email already exists!' }
+    }
+    res.status(400);
+    return res.render('registration', templateVars);
   }
 
   users[newUserId] = {
@@ -169,6 +179,7 @@ app.post('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
   let templateVars = {
+    error: {},
     user: users[req.session.user_id]
   }
   res.render('login', templateVars);
@@ -179,16 +190,19 @@ app.post('/login', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   let id = getUserByEmail(email, users);
+  let templateVars = {};
 
-  console.log(id);
-  if (!isValidEmail(email, users)) {
-    return res.status(403).send('Invalid email.. User does not exist!');
-  }
-  if (!bcrypt.compareSync(password, users[id].password)) {
-    return res.status(403).send('Wrong password!');
-  }
 
-  
+  if (!isValidEmail(email, users) || !bcrypt.compareSync(password, users[id].password)) {
+    templateVars = {
+      user: users[req.session.user_id],
+      error: {
+        msg: 'Invalid email or password!',
+      } 
+  }
+  res.status(400);
+  return res.render('login', templateVars);
+  }
   req.session.user_id = id;
   res.redirect('/urls');
 });

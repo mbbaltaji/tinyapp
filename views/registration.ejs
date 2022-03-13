@@ -9,6 +9,11 @@
 </head>
 <body>
   <%- include('partials/_header') %>
+  <% if (error.msg) { %> 
+    <div class="alert alert-danger" role="alert">
+      <%= error.msg %> 
+    </div>
+    <% } %> 
   <main style="margin: 1em;">
     <h3>Create Account</h3>
     <form action="/register" method="POST">
